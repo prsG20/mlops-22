@@ -1,13 +1,3 @@
-"""
-================================
-Recognizing hand-written digits
-================================
-
-This example shows how scikit-learn can be used to recognize images of
-hand-written digits, from 0-9.
-
-"""
-
 # Author: Gael Varoquaux <gael dot varoquaux at normalesup dot org>
 # License: BSD 3 clause
 
@@ -19,8 +9,6 @@ import matplotlib.pyplot as plt
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
 from sklearn.model_selection import train_test_split
-
-
 
 
 gamma_list = [0.01, 0.005, 0.001, 0.0005, 0.0001 ]
@@ -36,9 +24,6 @@ train_frac = 0.8
 test_frac = 0.1
 dev_frac = 0.1
 
-
-#PART-2: LOAD DATASETS 
-
 ###############################################################################
 # Digits dataset
 # --------------
@@ -53,7 +38,10 @@ dev_frac = 0.1
 # Note: if we were working from image files (e.g., 'png' files), we would load
 # them using :func:`matplotlib.pyplot.imread`.
 
+
+#PART-2: LOAD DATASETS s
 digits = datasets.load_digits()
+
 
 #PART-2.1: Sanity Check Visualization of the data
 
@@ -77,6 +65,7 @@ for ax, image, label in zip(axes, digits.images, digits.target):
 # vector classifier on the train samples. The fitted classifier can
 # subsequently be used to predict the value of the digit for the samples
 # in the test subset.
+
 
 #PART-3: Data Preprocessing -- to remove some noise, normalize data, 
 # transformation to format the data to be consumed by the model
