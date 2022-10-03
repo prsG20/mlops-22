@@ -15,7 +15,7 @@ gamma_list = [0.01, 0.005, 0.001, 0.0005, 0.0001 ]
 c_list = [0.1, 0.2, 0.5, 0.7, 1, 2, 5, 7, 10]
 
 hyperpara_comb = [{'gamma': g, 'C': c}for g in gamma_list for c in c_list]
-clf.set_params(**hyperpara_comb)
+
 
 #model hyperparameters
 GAMMA = 0.001
