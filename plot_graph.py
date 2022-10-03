@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn import datasets, svm, metrics
 #from sklearn.model_selection import train_test_split
 from utils import preprocess_digits, h_param_tuning, data_visualization, train_dev_test_split, pred_image_visualization
-
+from joblib import dump, load
 
 train_frac, test_frac, dev_frac = 0.8, 0.1, 0.1
 assert train_frac + test_frac + dev_frac == 1.0
@@ -42,6 +42,14 @@ metric = metrics.accuracy_score
 
 #PART: Hyperparameter tuning
 best_h_params, best_model, best_metric = h_param_tuning(h_para_comb, clf, X_train, y_train, X_dev, y_dev, metric)
+
+
+#1.Save the best_model to the disk
+best_param_config = "_".join([h +"="+ str(best_h_params[h]) for h in best_h_params])
+dump(best_model, "svm_" + best_param_config + ".joblib")
+
+#2.Load the best_model from the disk
+best_model = load("svm_" + best_param_config + ".joblib")
 
 #PART: Prediction on test data
 predicted = best_model.predict(X_test)
