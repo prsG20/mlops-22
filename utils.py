@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
+def get_all_h_params_combo(params):
+    h_para_comb = [{'gamma': g, 'C': c}for g in params['gamma'] for c in params['C']]
+    return h_para_comb
+
 def preprocess_digits(dataset):
     n_samples = len(dataset.images)
     data = dataset.images.reshape((n_samples, -1))
