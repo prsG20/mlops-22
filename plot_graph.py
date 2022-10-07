@@ -2,14 +2,11 @@
 # License: BSD 3 clause
 
 #PART: Library Dependencies
-
-# Standard scientific Python imports
 import matplotlib.pyplot as plt
-
-# Import datasets, classifiers and performance metrics
+# Import datasets, classifier and performance metrics
 from sklearn import datasets, svm, metrics
 #from sklearn.model_selection import train_test_split
-from utils import preprocess_digits, h_param_tuning, data_visualization, train_dev_test_split, pred_image_visualization
+from utils import preprocess_digits, h_param_tuning, data_visualization, train_dev_test_split, pred_image_visualization, get_all_h_params_combo
 
 
 train_frac, test_frac, dev_frac = 0.8, 0.1, 0.1
@@ -19,8 +16,11 @@ assert train_frac + test_frac + dev_frac == 1.0
 gamma_list = [0.01, 0.005, 0.001, 0.0005, 0.0001 ]
 c_list = [0.1, 0.2, 0.5, 0.7, 1, 2, 5, 7, 10]
 
-h_para_comb = [{'gamma': g, 'C': c}for g in gamma_list for c in c_list]
-assert len(h_para_comb) == len(gamma_list)*len(c_list)
+params = {}
+params['gamma'] = gamma_list
+params['C'] = c_list
+
+h_para_comb = get_all_h_params_combo(params)
 
 #PART: Load dataset
 digits = datasets.load_digits()
