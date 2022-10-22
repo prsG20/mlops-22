@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 # Import datasets, classifier and performance metrics
 from sklearn import datasets, svm, metrics
 #from sklearn.model_selection import train_test_split
-from utils import preprocess_digits, h_param_tuning, data_visualization, train_dev_test_split, pred_image_visualization, get_all_h_params_combo
-
+from utils import preprocess_digits, h_param_tuning, data_visualization, train_dev_test_split, pred_image_visualization, get_all_h_params_combo, train_saved_model
+from joblib import dump, load
 
 train_frac, test_frac, dev_frac = 0.8, 0.1, 0.1
 assert train_frac + test_frac + dev_frac == 1.0
@@ -28,20 +28,22 @@ digits = datasets.load_digits()
 data_visualization(digits)
 #PART: Preprocess dataset
 data, label = preprocess_digits(digits)
+
 del digits
 
-#PART: Split Dataset
-X_train, y_train, X_dev, y_dev, X_test, y_test = train_dev_test_split(data, label, train_frac, dev_frac)
-
-
+X_train, y_train, X_dev, y_dev, X_test, y_test = train_dev_test_split(data, label, train_frac, test_frac)
 
 #define model, create classifier: Support Vector Classifier
 clf = svm.SVC()
 #define metric
 metric = metrics.accuracy_score
-
 #PART: Hyperparameter tuning
 best_h_params, best_model, best_metric = h_param_tuning(h_para_comb, clf, X_train, y_train, X_dev, y_dev, metric)
+
+model_path = train_saved_model(X_train, y_train, X_dev, y_dev, data, label, train_frac, dev_frac, None, h_para_comb, best_h_params, best_model)
+
+#2.Load the best_model from the disk
+best_model = load(model_path)
 
 #PART: Prediction on test data
 predicted = best_model.predict(X_test)
@@ -51,7 +53,7 @@ pred_image_visualization(X_test, predicted)
 
 
 
-#PART: Compte Evaluation metrics
+#PART: Compute Evaluation metrics
 print(
     f"Classification report for classifier {clf}:\n"
     f"{metrics.classification_report(y_test, predicted)}\n"
