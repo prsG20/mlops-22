@@ -1,5 +1,12 @@
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn import svm, metrics, datasets
+from joblib import dump, load
+import pdb
+
+def get_all_h_params_combo(params):
+    h_para_comb = [{'gamma': g, 'C': c}for g in params['gamma'] for c in params['C']]
+    return h_para_comb
 
 def preprocess_digits(dataset):
     n_samples = len(dataset.images)
@@ -68,3 +75,13 @@ def pred_image_visualization(X_test, predictions):
         image = image.reshape(8, 8)
         ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
         ax.set_title(f"Prediction: {prediction}")
+
+def train_saved_model(X_train, y_train, X_dev, y_dev, data,label,train_frac,dev_frac,model_path,h_para_comb, best_h_params, best_model):
+
+    #1.Save the best_model to the disk
+    best_param_config = "_".join([h +"="+ str(best_h_params[h]) for h in best_h_params])
+    if model_path is None:
+        model_path = str("svm_" + best_param_config + ".joblib")
+    dump(best_model, model_path)
+
+    return model_path
