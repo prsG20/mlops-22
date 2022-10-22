@@ -8,6 +8,10 @@ def get_all_h_params_combo(params):
     h_para_comb = [{'gamma': g, 'C': c}for g in params['gamma'] for c in params['C']]
     return h_para_comb
 
+def get_all_h_params_combo_tree(params):
+    h_para_comb = [{'max_depth' : m} for m in params['max_depth']]
+    return h_para_comb
+
 def preprocess_digits(dataset):
     n_samples = len(dataset.images)
     data = dataset.images.reshape((n_samples, -1))
@@ -68,6 +72,9 @@ def h_param_tuning(h_para_comb, clf, X_train, y_train, X_dev, y_dev, metric):
 
     return best_h_params, best_model, best_metric
 
+def h_params_tuning_tree(clf, X_train, y_train, X_dev, y_dec, metric): pass
+
+
 def pred_image_visualization(X_test, predictions):
     _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
     for ax, image, prediction in zip(axes, X_test, predictions):
@@ -76,13 +83,14 @@ def pred_image_visualization(X_test, predictions):
         ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
         ax.set_title(f"Prediction: {prediction}")
 
-def train_saved_model(X_train, y_train, X_dev, y_dev, data,label,train_frac,dev_frac,model_path,h_para_comb, best_h_params, best_model):
+def train_saved_model(X_train, y_train, X_dev, y_dev, data,label,train_frac,dev_frac,model_path,h_para_comb, best_h_params, best_model, clf):
 
     #1.Save the best_model to the disk
     best_param_config = "_".join([h +"="+ str(best_h_params[h]) for h in best_h_params])
     if model_path is None:
-        model_path = str("svm_" + best_param_config + ".joblib")
+        model_path = str(clf + "_"+ best_param_config + ".joblib")
     dump(best_model, model_path)
 
     return model_path
 
+def tune_and_save(clf, X_train, y_train, X_dev, y_dev, metric, h_para_combo): pass
