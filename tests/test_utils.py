@@ -28,8 +28,42 @@ def test_get_h_param_combo():
 #step2: assert if the file exists at the provided path
 #step3: assert if the file is a scikit-learn model
 #step4: optinally checksome validate md5
+def test_check_class_prediction():
+        #PART: Load dataset
+    digits = datasets.load_digits()
+    #PART: Visualize dataset
+    data_visualization(digits)
+    #PART: Preprocess dataset
+    data, label = preprocess_digits(digits)
+    sample_data = data[:500]
+    sample_label = label[:500]
+    
+    train_frac = 0.8
+    dev_frac = 0.1
+    
+       #model hyperparameters
+    gamma_list = [0.01, 0.0005, 0.0001 ]
+    c_list = [0.1, 0.2, 5, 7, 10]
+
+    params = {}
+    params['gamma'] = gamma_list
+    params['C'] = c_list
+    h_para_comb = get_all_h_params_combo(params)
+
+    clf = svm.SVC()
+
+    #define metric
+    metric = metrics.accuracy_score
+    X_train, y_train, X_dev, y_dev, X_test, y_test = train_dev_test_split(data, label, train_frac, dev_frac)
+    best_h_params, best_model, best_metric  = h_param_tuning(h_para_comb, clf, X_train, y_train, X_dev, y_dev, metric)
+    predicted = best_model.predict(X_test)
+    
+    assert len(set(predicted)) != 1
+    
+    assert len(set(predicted))  == 10
 
 def test_check_model_saving():
+
     
     #PART: Load dataset
     digits = datasets.load_digits()
