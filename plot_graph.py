@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 # Import datasets, classifier and performance metrics
 from sklearn import datasets, svm, metrics, tree
 #from sklearn.model_selection import train_test_split
-from utils import get_all_h_params_combo_tree, preprocess_digits, h_param_tuning, data_visualization, train_dev_test_split, pred_image_visualization, get_all_h_params_combo, train_saved_model, tune_and_save
-from joblib import dump, load
+from utils import get_all_h_params_combo_tree, preprocess_digits, data_visualization, train_dev_test_split, pred_image_visualization, get_all_h_params_combo, tune_and_save
 import numpy as np
 
 
