@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # Import datasets, classifier and performance metrics
 from sklearn import datasets, svm, metrics, tree
 #from sklearn.model_selection import train_test_split
-from utils import get_all_h_params_combo_tree, preprocess_digits, h_param_tuning, data_visualization, train_dev_test_split, pred_image_visualization, get_all_h_params_combo, train_saved_model
+from utils import get_all_h_params_combo_tree, preprocess_digits, h_param_tuning, data_visualization, train_dev_test_split, pred_image_visualization, get_all_h_params_combo, train_saved_model, tune_and_save
 from joblib import dump, load
 import numpy as np
 
@@ -23,8 +23,10 @@ svm_params['C'] = c_list
 svm_h_para_comb = get_all_h_params_combo(svm_params)
 
 max_depth_list = [10, 20, 30, 40, 50]
+criterion_list = ["gini", "entropy"]
 tree_params = {}
 tree_params['max_depth'] = max_depth_list
+tree_params['criterion'] = criterion_list 
 tree_h_para_comb = get_all_h_params_combo_tree(tree_params)
 
 h_para_comb = {'svm': svm_h_para_comb, 'decision_tree': tree_h_para_comb}
@@ -60,13 +62,7 @@ for i in range(5):
 
     for clf in model_of_choice:
 
-        #PART: Hyperparameter tuning
-        best_h_params, best_model, best_metric = h_param_tuning(h_para_comb[clf], model_of_choice[clf], X_train, y_train, X_dev, y_dev, metric)
-
-        model_path = train_saved_model(X_train, y_train, X_dev, y_dev, data, label, train_frac, dev_frac, None, h_para_comb[clf], best_h_params, best_model, clf)
-
-        #2.Load the best_model from the disk
-        best_model = load(model_path)
+        best_model = tune_and_save(h_para_comb[clf], model_of_choice[clf], X_train, y_train, X_dev, y_dev, metric, clf, data, label, train_frac, dev_frac)
 
         #PART: Prediction on test data
         predicted = best_model.predict(X_test)
@@ -78,23 +74,25 @@ for i in range(5):
 
         #PART: Compute Evaluation metrics
         print(
-        f"Classification report for classifier {clf}:\n"
-        f"{metrics.classification_report(y_test, predicted)}\n"
+            f"Classification report for classifier {clf}:\n"
+            f"{metrics.classification_report(y_test, predicted)}\n"
         )
 
-print(results)
+print("Accuracy" + str(results))
 
 mean, std_dev = {'svm': [], 'decision_tree': []}, {'svm': [], 'decision_tree': []}
 
 for clf in results:
     if not clf in mean and std_dev:
-        mean[clf] = []
-        std_dev[clf] = []
-    mean[clf].append(np.mean(results[clf]))
-    std_dev[clf].append(np.std(results[clf]))
+        mean[clf] = None
+        std_dev[clf] = None
+    mean[clf] = np.mean(results[clf])
+    std_dev[clf] = np.std(results[clf])
 
-print(mean)
-print(std_dev)
+print("Mean:" + str(mean))
+#print(mean)
+print("Standard Deviation:" + str(std_dev))
+#print(std_dev)
 
 
 #PART: Sanity check of predictions/ prediction visualization

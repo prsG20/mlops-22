@@ -9,7 +9,7 @@ def get_all_h_params_combo(params):
     return h_para_comb
 
 def get_all_h_params_combo_tree(params):
-    h_para_comb = [{'max_depth' : m} for m in params['max_depth']]
+    h_para_comb = [{'max_depth' : m, 'criterion' : c} for m in params['max_depth'] for c in params['criterion']]
     return h_para_comb
 
 def preprocess_digits(dataset):
@@ -39,6 +39,7 @@ def train_dev_test_split(data, label, train_frac, dev_frac):
         X_dev_test, y_dev_test, test_size=(dev_frac)/(dev_test_frac), shuffle=True
     )
 
+    print("Train:Dev:Test :: " + str(train_frac*100) + " : "+ str(dev_frac*100) + " : "+ str(dev_frac*100))
     return X_train, y_train, X_dev, y_dev, X_test, y_test
 
 def h_param_tuning(h_para_comb, clf, X_train, y_train, X_dev, y_dev, metric):
@@ -72,7 +73,6 @@ def h_param_tuning(h_para_comb, clf, X_train, y_train, X_dev, y_dev, metric):
 
     return best_h_params, best_model, best_metric
 
-def h_params_tuning_tree(clf, X_train, y_train, X_dev, y_dec, metric): pass
 
 
 def pred_image_visualization(X_test, predictions):
@@ -93,4 +93,13 @@ def train_saved_model(X_train, y_train, X_dev, y_dev, data,label,train_frac,dev_
 
     return model_path
 
-def tune_and_save(clf, X_train, y_train, X_dev, y_dev, metric, h_para_combo): pass
+def tune_and_save(h_para_comb, model_of_choice, X_train, y_train, X_dev, y_dev, metric, clf, data, label, train_frac, dev_frac):
+    #PART: Hyperparameter tuning
+    best_h_params, best_model, best_metric = h_param_tuning(h_para_comb, model_of_choice, X_train, y_train, X_dev, y_dev, metric)
+
+    model_path = train_saved_model(X_train, y_train, X_dev, y_dev, data, label, train_frac, dev_frac, None, h_para_comb, best_h_params, best_model, clf)
+
+    #2.Load the best_model from the disk
+    best_model = load(model_path)
+
+    return best_model
