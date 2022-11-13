@@ -64,7 +64,7 @@ def test_check_model_saving():
     best_param_config = "_".join([h +"="+ str(best_h_params[h]) for h in best_h_params])
     model_path = str("svm_" + best_param_config + ".joblib")
     #train_saved_model(X_train, y_train, X_dev, y_dev, data,label,train_frac,dev_frac,model_path,h_para_comb, best_h_params, best_model)
-    actual_model_path = train_saved_model(sample_data, sample_label, sample_data, sample_label, data, label, train_frac, dev_frac, model_path, h_para_comb, best_h_params, best_model)
+    actual_model_path = train_saved_model(sample_data, sample_label, sample_data, sample_label, data, label, train_frac, dev_frac, model_path, h_para_comb, best_h_params, best_model, clf)
     
     assert actual_model_path == model_path
     assert os.path.exists(model_path)
