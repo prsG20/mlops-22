@@ -10,5 +10,6 @@ WORKDIR /exp
 EXPOSE 5000
 # CMD ["python3", "./plot_graph.py"]
 CMD ["python3","./api/app.py"]
+
 # for build: docker build -t exp:v1 -f docker/Dockerfile .
 # for running a container: docker run -p 5000:5000 -it exp:v1
