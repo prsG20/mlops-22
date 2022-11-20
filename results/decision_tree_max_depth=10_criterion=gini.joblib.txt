@@ -1,0 +1,3 @@
+Accuracy: 0.8740740740740741
+Macro f1 score: 0.8693886328566183
+Model saved at: ./models/decision_tree_max_depth=10_criterion=gini.joblib

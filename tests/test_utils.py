@@ -52,8 +52,10 @@ def test_check_model_saving():
     assert train_frac + test_frac + dev_frac == 1.0
 
     h_para_comb = get_all_h_params_combo(params)
+
+    randomstate = 100
     #pdb.set_trace()
-    X_train, y_train, X_dev, y_dev, X_test, y_test = train_dev_test_split(data, label, train_frac, test_frac)
+    X_train, y_train, X_dev, y_dev, X_test, y_test = train_dev_test_split(data, label, train_frac, test_frac, randomstate)
     #define model, create classifier: Support Vector Classifier
     clf = svm.SVC()
     #define metric
@@ -71,3 +73,61 @@ def test_check_model_saving():
 
     loaded_model = load(model_path)
     assert type(loaded_model) == type(clf)
+
+
+
+def test_diff_splits():
+    train_frac = 0.8
+    test_frac = 0.1
+    dev_frac = 0.1
+
+
+    digits = datasets.load_digits()
+    #PART: Visualize dataset
+    data_visualization(digits)
+    #PART: Preprocess dataset
+    data, label = preprocess_digits(digits)
+
+    data, label = preprocess_digits(digits)
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        data, label, test_size=test_frac, shuffle=True, random_state = 10
+    )
+    
+    X_train1, X_test1, y_train1, y_test1 = train_test_split(
+        data, label, test_size=test_frac, shuffle=True, random_state = 10
+    )
+
+    assert (X_train == X_train1).all()
+    assert (X_test == X_test1).all()
+    assert (y_train == y_train1).all()
+    assert (y_test == y_test1).all()
+
+
+def test_same_splits():
+    train_frac = 0.8
+    test_frac = 0.1
+    dev_frac = 0.1
+
+
+    digits = datasets.load_digits()
+    #PART: Visualize dataset
+    data_visualization(digits)
+    #PART: Preprocess dataset
+    data, label = preprocess_digits(digits)
+
+
+    data, label = preprocess_digits(digits)
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        data, label, test_size=test_frac, shuffle=True
+    )
+    
+    X_train1, X_test1, y_train1, y_test1 = train_test_split(
+        data, label, test_size=test_frac, shuffle=True
+    )
+
+    assert (X_train == X_train1).all() == False
+    assert (X_test == X_test1).all() == False
+    assert (y_train == y_train1).all() == False
+    assert (y_test == y_test1).all() == False

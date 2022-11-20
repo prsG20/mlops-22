@@ -6,8 +6,13 @@ import matplotlib.pyplot as plt
 # Import datasets, classifier and performance metrics
 from sklearn import datasets, svm, metrics, tree
 #from sklearn.model_selection import train_test_split
-from utils import get_all_h_params_combo_tree, preprocess_digits, data_visualization, train_dev_test_split, pred_image_visualization, get_all_h_params_combo, tune_and_save
+from utils import get_all_h_params_combo_tree, preprocess_digits, data_visualization, train_dev_test_split, pred_image_visualization, get_all_h_params_combo, tune_and_save, macro_f1
 import numpy as np
+
+import argparse
+
+parser = argparse.ArgumentParser(description='None')
+
 
 
 train_frac, test_frac, dev_frac = 0.8, 0.1, 0.1
@@ -39,7 +44,7 @@ data, label = preprocess_digits(digits)
 
 del digits
 
-train_fracs_ls = [0.9, 0.8, 0.7, 0.6, 0.5]
+train_fracs_ls = [0.7, 0.9, 0.8, 0.6, 0.5]
 metrics_ls = []
 
 #define model, create classifier: Support Vector Classifier
@@ -51,33 +56,50 @@ model_of_choice = {'svm': svm.SVC(), 'decision_tree': tree.DecisionTreeClassifie
 #model_of_choice = [svm.SVC(), tree.DecisionTreeClassifier()]
 #define metric
 
+
+parser.add_argument('--clf_name', type = str)
+
+parser.add_argument('--random_state', type = int)
+args = parser.parse_args()
+
+clfname = args.clf_name
+randomstate = args.random_state
+
+
+print(clfname)
+print(randomstate)
+
 metric = metrics.accuracy_score
 
+
+
 results = {}
-for i in range(5):
+for i in range(1):
 
     dev_frac = (1 - train_fracs_ls[i])/2
-    X_train, y_train, X_dev, y_dev, X_test, y_test = train_dev_test_split(data, label, train_fracs_ls[i], dev_frac)
+    X_train, y_train, X_dev, y_dev, X_test, y_test = train_dev_test_split(data, label, train_fracs_ls[i], dev_frac, randomstate)
 
     for clf in model_of_choice:
 
-        best_model = tune_and_save(h_para_comb[clf], model_of_choice[clf], X_train, y_train, X_dev, y_dev, metric, clf, data, label, train_frac, dev_frac)
 
-        #PART: Prediction on test data
-        predicted = best_model.predict(X_test)
+        if clfname == clf:
+            best_model, file_obj, model_path = tune_and_save(h_para_comb[clf], model_of_choice[clf], X_train, y_train, X_dev, y_dev, metric, clf, data, label, train_frac, dev_frac)
 
-        if not clf in results:
-            results[clf] = []
+            #PART: Prediction on test data
+            predicted = best_model.predict(X_test)
+
+            if not clf in results:
+                results[clf] = []
         
-        results[clf].append(metric(predicted, y_test))
+            results[clf].append(metric(predicted, y_test))
 
-        #PART: Compute Evaluation metrics
-        print(
-            f"Classification report for classifier {clf}:\n"
-            f"{metrics.classification_report(y_test, predicted)}\n"
-        )
+            #PART: Compute Evaluation metrics
+            
+            print(
+                #f"Classification report for classifier {clf}:\n"
+                #f"{metrics.classification_report(y_test, predicted)}\n"
+            )
 
-print("Accuracy" + str(results))
 
 mean, std_dev = {'svm': [], 'decision_tree': []}, {'svm': [], 'decision_tree': []}
 
@@ -93,6 +115,13 @@ print("Mean:" + str(mean))
 print("Standard Deviation:" + str(std_dev))
 #print(std_dev)
 
+print("Accuracy:" + str(results))
+print("Macro f1 score:" + str(macro_f1(y_test, predicted)))
+
+file_obj.write("Accuracy: " + str(results[clfname][0]) + "\n")
+file_obj.write("Macro f1 score: " + str(macro_f1(y_test, predicted)) + "\n")
+file_obj.write("Model saved at: " + model_path)
+file_obj.close()
 
 #PART: Sanity check of predictions/ prediction visualization
 #pred_image_visualization(X_test, predicted)

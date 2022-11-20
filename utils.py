@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import svm, metrics, datasets
 from joblib import dump, load
 import pdb
+import os
 
 def get_all_h_params_combo(params):
     h_para_comb = [{'gamma': g, 'C': c}for g in params['gamma'] for c in params['C']]
@@ -30,17 +31,18 @@ def data_visualization(dataset):
         ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
         ax.set_title("Training: %i" % label)
 
-def train_dev_test_split(data, label, train_frac, dev_frac):
+def train_dev_test_split(data, label, train_frac, dev_frac, randomstate):
     dev_test_frac = 1 - train_frac
     X_train, X_dev_test, y_train, y_dev_test = train_test_split(
-        data, label, test_size= dev_test_frac, shuffle=True
+        data, label, test_size = dev_test_frac, shuffle=True, random_state= randomstate
     )
     X_test, X_dev, y_test, y_dev = train_test_split(
-        X_dev_test, y_dev_test, test_size=(dev_frac)/(dev_test_frac), shuffle=True
+        X_dev_test, y_dev_test, test_size =(dev_frac)/(dev_test_frac), shuffle=True
     )
 
     print("Train:Dev:Test :: " + str(train_frac*100) + " : "+ str(dev_frac*100) + " : "+ str(dev_frac*100))
     return X_train, y_train, X_dev, y_dev, X_test, y_test
+
 
 def h_param_tuning(h_para_comb, clf, X_train, y_train, X_dev, y_dev, metric):
     best_metric = -1.0
@@ -87,19 +89,37 @@ def train_saved_model(X_train, y_train, X_dev, y_dev, data,label,train_frac,dev_
 
     #1.Save the best_model to the disk
     best_param_config = "_".join([h +"="+ str(best_h_params[h]) for h in best_h_params])
+    
+    if not os.path.exists("models"):
+        os.mkdir("models")
     if model_path is None:
-        model_path = str(clf + "_"+ best_param_config + ".joblib")
+        model_path = "./models/" + str(clf + "_"+ best_param_config + ".joblib")
+
+        model_name = str(clf + "_"+ best_param_config + ".joblib")
     dump(best_model, model_path)
 
-    return model_path
+    return model_path, model_name
 
 def tune_and_save(h_para_comb, model_of_choice, X_train, y_train, X_dev, y_dev, metric, clf, data, label, train_frac, dev_frac):
     #PART: Hyperparameter tuning
     best_h_params, best_model, best_metric = h_param_tuning(h_para_comb, model_of_choice, X_train, y_train, X_dev, y_dev, metric)
 
-    model_path = train_saved_model(X_train, y_train, X_dev, y_dev, data, label, train_frac, dev_frac, None, h_para_comb, best_h_params, best_model, clf)
+    model_path, model_name = train_saved_model(X_train, y_train, X_dev, y_dev, data, label, train_frac, dev_frac, None, h_para_comb, best_h_params, best_model, clf)
 
     #2.Load the best_model from the disk
     best_model = load(model_path)
 
-    return best_model
+    if not os.path.exists("results"):
+        os.mkdir("results")
+
+    file_path = "./results/" + model_name + ".txt"
+    file_obj = open(file_path, "w+")
+    
+
+    return best_model, file_obj, model_path
+
+
+
+
+def macro_f1(y_true, y_pred, pos_label=1):
+    return metrics.f1_score(y_true, y_pred, pos_label=pos_label, average='macro', zero_division='warn')
