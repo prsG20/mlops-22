@@ -55,6 +55,17 @@ def compare_images():
         return {"result" :"Different numbers"}
 
 
+@app.route('/run_model',methods = ['POST'])
+def run_model():
+    image = request.json['image']
+    model_name = request.json['model_name']
+
+    model = load(model_name)
+    predict = model.predict([image])
+
+    return {"predicted" : int(predict[0])}
+
+
 
 #export FLASK_APP=api/app.py
 #flask run
